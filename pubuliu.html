@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>瀑布流</title>
+    <link rel="stylesheet" href="pubuliu.css">
+</head>
+<body>
+    <div class="wrapper">
+        <ul class="box">
+            <li class="item">
+                <div class="item-con">
+                    <img src="./img/1.jpg" alt="">
+                    <p class="title">我是pictiure</p>
+                </div>
+            </li>
+            <li class="item">
+                <div class="item-con">
+                    <img src="./img/2.jpg" alt="">
+                    <p class="title">我是pictiure</p>
+                </div>
+            </li>
+            <li class="item">
+                <div class="item-con">
+                    <img src="./img/3.jpg" alt="">
+                    <p class="title">我是pictiure</p>
+                </div>
+            </li>
+            <li class="item">
+                <div class="item-con">
+                    <img src="./img/4.jpg" alt="">
+                    <p class="title">我是pictiure</p>
+                </div>
+            </li>
+        </ul>
+        <div class="loading">loading.....</div>
+    </div>
+    <script src="./jquery-3.3.1.js"></script>
+    <script>
+    var oLi=$('li');
+    var page=1;
+    var key=false;
+    function getMin(){
+        var index=0;
+        var minLi=$(oLi[0]).height();
+        for (var i=0;i<oLi.length;i++){
+            if(minLi>$(oLi[i]).height()){
+                minLi=$(oLi[i]).height();
+                index=i;
+            }
+        }
+        return {
+            index:index,
+            minLi:minLi
+                };
+    }
+    // 服务其代理的方式获取数据
+    function getData(){
+        if(key){
+            return
+        }
+        key=true;
+        $('.loading').show();
+        $.ajax({
+            type:'GET',
+            url:'./src/getPics.php',
+            data:{
+                cpage:page
+            },
+            success:function(data){
+                console.log(typeof(data));
+                var dataList=JSON.parse(data);
+                console.log(dataList);
+                dataList.forEach(function(item,index){
+                    rendom(item);
+                });
+                $('.loading').hide();
+                page++;
+                key=false;
+
+            }
+            
+        });
+
+    }
+    // 将获取的数据渲染到页面
+    function rendom(item){
+        var oDiv=$(' <div class="item-con"></div>');
+        var img=new Image;
+        img.src=item.image;
+        var p=$('<p></p>');
+        p.text(item.title);
+        img.onload=function(){
+            oDiv.append(img).append(p);
+            var index=getMin().index;
+            $(oLi[index]).append(oDiv);
+            
+        }
+
+    }
+    getData()
+        
+$(window).scroll(function(){
+    // console.log($(window).scrollTop(),$(window).height());
+    var scrollH=$(window).scrollTop();
+    var winH=$(window).height();
+    var minH=getMin().minLi;
+    if(minH<scrollH+winH){
+            console.log(1111)
+        getData();
+
+
+    }
+    
+})
+
+    </script>
+</body>
+</html>
